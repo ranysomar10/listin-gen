@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avuex</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dim: rgba(201,168,76,0.5);
+  --gold-border: rgba(201,168,76,0.12);
+  --text: #e0d5c5;
+  --text-dim: rgba(201,168,76,0.35);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  color: var(--text);
+  background-color: #080705;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 0%, #1c1408 0%, #0a0806 50%, #050403 100%);
+  background-size: 300px 300px, 100% 100%;
+  overflow-x: hidden;
+}
+.hero { text-align: center; padding: 64px 24px 52px; position: relative; }
+.hero::after { content: ''; display: block; width: 160px; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent); margin: 44px auto 0; }
+.logo-svg { width: 260px; height: auto; display: block; margin: 0 auto 16px; filter: drop-shadow(0 4px 24px rgba(201,168,76,0.2)); }
+.brand-sub { font-size: 8px; letter-spacing: 5px; color: rgba(201,168,76,0.3); text-transform: uppercase; font-weight: 300; margin-top: 2px; }
+.container { max-width: 500px; margin: 0 auto; padding: 0 20px 80px; }
+.divider-label { display: flex; align-items: center; gap: 14px; margin: 32px 0 18px; font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--text-dim); }
+.divider-label::before, .divider-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-border); }
+.panel { background: rgba(18,13,8,0.65); border: 1px solid var(--gold-border); padding: 26px 22px; position: relative; }
+.panel::before { content: ''; position: absolute; top: 0; left: 30px; right: 30px; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,0.25), transparent); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 11px; }
+.fg { display: flex; flex-direction: column; gap: 7px; }
+.fg.full { grid-column: 1/-1; }
+label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); font-weight: 400; }
+select {
+  background: rgba(8,6,4,0.8); border: 1px solid rgba(201,168,76,0.1); border-bottom-color: rgba(201,168,76,0.18);
+  color: var(--text); padding: 13px 32px 13px 13px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 300;
+  width: 100%; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath fill='rgba(201,168,76,0.4)' d='M4 5L0 0h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; transition: border-color 0.2s;
+}
+select:focus { outline: none; border-color: rgba(201,168,76,0.35); }
+select option { background: #0d0b07; }
+textarea {
+  background: rgba(8,6,4,0.8); border: 1px solid rgba(201,168,76,0.1); border-bottom-color: rgba(201,168,76,0.18);
+  color: var(--text); padding: 13px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 300;
+  width: 100%; resize: vertical; min-height: 80px; transition: border-color 0.2s; line-height: 1.6;
+}
+textarea:focus { outline: none; border-color: rgba(201,168,76,0.35); }
+textarea::placeholder { color: rgba(201,168,76,0.2); }
+.gen-btn { width: 100%; margin-top: 24px; padding: 16px; background: transparent; border: 1px solid rgba(201,168,76,0.3); color: var(--gold); font-family: 'Outfit', sans-serif; font-size: 9px; letter-spacing: 6px; text-transform: uppercase; font-weight: 400; cursor: pointer; transition: all 0.3s; }
+.gen-btn:active { background: rgba(201,168,76,0.06); }
+.output { display: none; }
+.output.visible { display: block; }
+.title-box { border-left: 1px solid var(--gold); padding: 13px 18px; background: rgba(201,168,76,0.03); font-size: 14px; font-weight: 400; color: var(--gold-light); letter-spacing: 0.3px; line-height: 1.5; margin-bottom: 14px; }
+.desc-box { background: rgba(8,6,4,0.55); border: 1px solid var(--gold-border); padding: 22px; font-size: 13px; line-height: 1.85; color: rgba(224,213,197,0.7); white-space: pre-wrap; word-break: break-word; letter-spacing: 0.2px; margin-bottom: 10px; }
+.copy-btn { width: 100%; padding: 14px; background: transparent; border: 1px solid rgba(201,168,76,0.18); color: rgba(201,168,76,0.5); font-family: 'Outfit', sans-serif; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+.copy-btn:active, .copy-btn.copied { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.05); }
+.coll { border: 1px solid var(--gold-border); margin-bottom: 6px; }
+.coll-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; cursor: pointer; background: rgba(14,10,6,0.5); user-select: none; }
+.coll-title { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--text-dim); }
+.coll-icon { font-size: 10px; color: var(--text-dim); transition: transform 0.3s; }
+.coll.open .coll-icon { transform: rotate(180deg); }
+.coll-body { display: none; padding: 20px; border-top: 1px solid var(--gold-border); background: rgba(8,6,4,0.4); }
+.coll.open .coll-body { display: block; }
+.coll-text { font-size: 13px; line-height: 1.85; color: rgba(224,213,197,0.55); white-space: pre-wrap; margin-bottom: 14px; }
+footer { text-align: center; padding: 28px 20px; border-top: 1px solid var(--gold-border); font-size: 8px; letter-spacing: 4px; color: rgba(201,168,76,0.12); text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="logo-svg" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#e8c97a"/><stop offset="40%" style="stop-color:#c9a84c"/><stop offset="100%" style="stop-color:#8b6914"/>
+      </linearGradient>
+      <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#e8c97a"/><stop offset="50%" style="stop-color:#c9a84c"/><stop offset="100%" style="stop-color:#7a5c10"/>
+      </linearGradient>
+    </defs>
+    <polygon points="90,170 160,20 185,20 260,170 235,170 160,55 115,170" fill="url(#g1)"/>
+    <line x1="195" y1="30" x2="275" y2="170" stroke="url(#g2)" stroke-width="22" stroke-linecap="square"/>
+    <line x1="275" y1="30" x2="195" y2="170" stroke="url(#g2)" stroke-width="22" stroke-linecap="square"/>
+    <rect x="220" y="95" width="34" height="20" fill="#100c07"/>
+    <text x="160" y="215" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="32" font-weight="300" letter-spacing="14" fill="url(#g1)">AVUEX</text>
+  </svg>
+  <div class="brand-sub">Certified Device Reseller</div>
+</div>
+
+<div class="container">
+  <div class="divider-label">Device Details</div>
+  <div class="panel">
+    <div class="form-grid">
+      <div class="fg full">
+        <label>Model</label>
+        <select id="model" onchange="updateColors()">
+          <option value="">— Select Model —</option>
+          <option>iPhone 13 Pro Max</option>
+          <option>iPhone 14 Pro</option><option>iPhone 14 Pro Max</option>
+          <option>iPhone 15</option><option>iPhone 15 Pro</option><option>iPhone 15 Pro Max</option>
+          <option>iPhone 16</option><option>iPhone 16 Pro</option><option>iPhone 16 Pro Max</option>
+          <option>iPhone 17</option><option>iPhone 17 Pro</option><option>iPhone 17 Pro Max</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Storage</label>
+        <select id="storage">
+          <option value="">— Select —</option>
+          <option>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Color</label>
+        <select id="color"><option value="">Select Model First</option></select>
+      </div>
+      <div class="fg">
+        <label>Condition</label>
+        <select id="condition">
+          <option value="">— Select —</option>
+          <option>Mint</option><option>Good</option><option>Fair</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Battery Health</label>
+        <select id="battery">
+          <option value="">— Select —</option>
+          <option value="100%">100%</option><option value="99%">99%</option><option value="98%">98%</option>
+          <option value="97%">97%</option><option value="96%">96%</option><option value="95%">95%</option>
+          <option value="94%">94%</option><option value="93%">93%</option><option value="92%">92%</option>
+          <option value="91%">91%</option><option value="90%">90%</option><option value="89%">89%</option>
+          <option value="88%">88%</option><option value="87%">87%</option><option value="86%">86%</option>
+          <option value="85%">85%</option><option value="84%">84%</option><option value="83%">83%</option>
+          <option value="82%">82%</option><option value="81%">81%</option><option value="80%">80%</option>
+          <option value="79%">79%</option><option value="78%">78%</option><option value="77%">77%</option>
+          <option value="76%">76%</option><option value="75%">75%</option>
+          <option value="New (Replaced)">New (Replaced)</option>
+        </select>
+      </div>
+      <div class="fg full">
+        <label>Carrier</label>
+        <select id="carrier">
+          <option value="">— Select —</option>
+          <option>Unlocked</option>
+          <option>Cricket Locked (Paid Off)</option>
+          <option>T-Mobile Locked (Paid Off)</option>
+          <option>AT&amp;T Locked (Paid Off)</option>
+          <option>Verizon Locked (Paid Off)</option>
+        </select>
+      </div>
+      <div class="fg full">
+        <label>Repair Performed</label>
+        <select id="repair">
+          <option value="None">None — No Repairs</option>
+          <option value="LCD Replacement">LCD Replacement</option>
+          <option value="Front Glass">Front Glass</option>
+          <option value="Back Glass">Back Glass</option>
+          <option value="Both Glass">Both Glass (Front + Back)</option>
+          <option value="LCD + Back Glass">LCD + Back Glass</option>
+          <option value="Battery">Battery Replacement</option>
+          <option value="Camera Spot Clear">Camera Spot Clear</option>
+          <option value="Camera Replacement">Camera Replacement</option>
+        </select>
+      </div>
+      <div class="fg full">
+        <label>Condition Notes (optional)</label>
+        <textarea id="condition-notes" placeholder="e.g. front screen mint, sides have light wear, small dent on bottom corner"></textarea>
+      </div>
+    </div>
+    <button class="gen-btn" onclick="generate()">Generate Listing</button>
+  </div>
+
+  <div class="output" id="output">
+    <div class="divider-label" style="margin-top:34px;">eBay Title</div>
+    <div class="title-box" id="title-text"></div>
+    <button class="copy-btn" onclick="copyEl('title-text',this,'Copy Title')">Copy Title</button>
+    <div class="divider-label" style="margin-top:26px;">Description</div>
+    <div class="desc-box" id="listing-text"></div>
+    <button class="copy-btn" onclick="copyEl('listing-text',this,'Copy Description')">Copy Description</button>
+  </div>
+
+  <div class="divider-label" style="margin-top:38px;">Templates</div>
+  <div class="coll" id="c1">
+    <div class="coll-head" onclick="tog('c1')">
+      <span class="coll-title">Follow Up Message</span><span class="coll-icon">▾</span>
+    </div>
+    <div class="coll-body">
+      <div class="coll-text" id="followup">Hi! Just wanted to check in and make sure your iPhone arrived safely and everything is working perfectly. If you have any questions or concerns at all, please don't hesitate to reach out — I'm always happy to help.
+
+If you're satisfied with your purchase, a 5-star review would mean the world to us and helps Avuex continue delivering quality devices.
+
+Thank you for choosing Avuex — your support means everything. 🙏</div>
+      <button class="copy-btn" onclick="copyEl('followup',this,'Copy Message')">Copy Message</button>
+    </div>
+  </div>
+  <div class="coll" id="c2">
+    <div class="coll-head" onclick="tog('c2')">
+      <span class="coll-title">Dispute Response</span><span class="coll-icon">▾</span>
+    </div>
+    <div class="coll-body">
+      <div class="coll-text" id="dispute">Hi — I'm truly sorry to hear this. This is not the Avuex experience and I want to make it right immediately.
+
+Every device is fully tested before shipment, so I'd love to understand exactly what happened. Please describe the issue and I'll work with you to resolve it as quickly as possible — whether that's troubleshooting, a replacement, or a full refund.
+
+Your satisfaction is my absolute priority. Thank you for giving me the chance to make this right. — Avuex</div>
+      <button class="copy-btn" onclick="copyEl('dispute',this,'Copy Response')">Copy Response</button>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2026 &nbsp;·&nbsp; Avuex &nbsp;·&nbsp; All Rights Reserved</footer>
+
+<script>
+const colors={
+  'iPhone 13 Pro Max':['Sierra Blue','Graphite','Gold','Silver'],
+  'iPhone 14 Pro':['Space Black','Silver','Gold','Deep Purple'],
+  'iPhone 14 Pro Max':['Space Black','Silver','Gold','Deep Purple'],
+  'iPhone 15':['Black','Blue','Green','Yellow','Pink'],
+  'iPhone 15 Pro':['Black Titanium','White Titanium','Blue Titanium','Natural Titanium'],
+  'iPhone 15 Pro Max':['Black Titanium','White Titanium','Blue Titanium','Natural Titanium'],
+  'iPhone 16':['Black','White','Ultramarine','Teal','Pink'],
+  'iPhone 16 Pro':['Black Titanium','White Titanium','Natural Titanium','Desert Titanium'],
+  'iPhone 16 Pro Max':['Black Titanium','White Titanium','Natural Titanium','Desert Titanium'],
+  'iPhone 17':['Black','White','Ultramarine','Teal','Pink'],
+  'iPhone 17 Pro':['Black Titanium','White Titanium','Natural Titanium','Desert Titanium'],
+  'iPhone 17 Pro Max':['Black Titanium','White Titanium','Natural Titanium','Desert Titanium'],
+};
+
+function updateColors(){
+  const m=document.getElementById('model').value,s=document.getElementById('color');
+  s.innerHTML='<option value="">— Select —</option>';
+  (colors[m]||[]).forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;s.appendChild(o);});
+}
+function tog(id){document.getElementById(id).classList.toggle('open');}
+function copyEl(id,btn,lbl){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
+    btn.textContent='✓  Copied';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent=lbl;btn.classList.remove('copied');},2000);
+  });
+}
+
+const rDesc={
+  'None':'This device has had no repairs — the screen, back glass, and all components are fully original.',
+  'LCD Replacement':'The display has been professionally replaced using a premium OLED panel — the same display technology as the original. True Tone, Face ID, and all display functions are fully intact with zero error messages or unknown part warnings. All other components remain fully original.',
+  'Front Glass':'Only the front glass was replaced — the LCD and display panel underneath are fully original. True Tone, Face ID, and all display functions are completely intact. The back glass and all other components remain fully original.',
+  'Back Glass':'Only the back glass was replaced — the screen, LCD, and all internal components are fully original. The device retains its complete original display with no changes to the front.',
+  'Both Glass':'The front and back glass were professionally replaced. The LCD underneath is fully original — True Tone, Face ID, and all display functions completely intact. Only the glass was replaced; the device is otherwise fully original.',
+  'LCD + Back Glass':'The display has been professionally replaced using a premium OLED panel — True Tone and Face ID fully intact, zero error messages or unknown part warnings. The back glass was also professionally replaced. All other internal components remain fully original.',
+  'Battery':'The battery has been professionally replaced. The device charges to 100% and holds excellent capacity. All other components remain fully original.',
+  'Camera Spot Clear':'The camera lens was professionally cleaned and cleared. Photos and videos are crisp with no blemishes or distortion. All other components remain fully original.',
+  'Camera Replacement':'The camera system was professionally replaced and fully functional — photos, videos, and Portrait Mode work perfectly. All other components remain fully original.'
+};
+
+const cDesc={
+  'Mint':'Device is in mint condition with no visible scratches, dents, or signs of wear',
+  'Good':'Device is in good condition with minimal signs of use — light surface scratches may be present but nothing that affects function or appearance significantly',
+  'Fair':'Device is in fair condition with some visible wear — all functions are completely intact and working perfectly'
+};
+
+// Short "What was serviced" line for the new description style
+const servicedLine={
+  'None':'No repairs — this device is completely original. Screen, back glass, battery, cameras, and all internals are 100% factory and untouched.',
+  'LCD Replacement':'Display professionally replaced using a premium OLED panel — the same OLED display technology Apple uses — installed by a professional repair shop. True Tone, Face ID, cameras, and all internals are fully intact and functional. No error messages. No warning screens.',
+  'Front Glass':'Front glass professionally replaced by a repair shop — the original Apple OLED display panel underneath is 100% original and untouched, so you keep the exact same screen quality Apple ships. Face ID, cameras, and all internals remain fully original. No error messages. No warning screens.',
+  'Back Glass':'Back glass professionally replaced by a repair shop — screen, Face ID, cameras, and all internals are 100% original and untouched. No error messages. No warning screens.',
+  'Both Glass':'Front and back glass professionally replaced by a repair shop — the original Apple OLED display panel underneath is 100% original and untouched, so screen quality is exactly what Apple ships. Face ID, cameras, and all internals remain fully original. No error messages. No warning screens.',
+  'LCD + Back Glass':'Display professionally replaced using a premium OLED panel — the same OLED display technology Apple uses — and back glass professionally replaced, both by a repair shop. Face ID, cameras, and all other internals are 100% original and untouched. No error messages. No warning screens.',
+  'Battery':'Battery professionally replaced — charges to 100% and holds excellent capacity. Screen, Face ID, cameras, and all other internals are 100% original and untouched. No error messages. No warning screens.',
+  'Camera Spot Clear':'Camera lens professionally cleaned and cleared — photos and video are crisp with no blemishes. Screen, Face ID, and all internals are 100% original and untouched. No error messages.',
+  'Camera Replacement':'Camera system professionally replaced — photos, video, and Portrait Mode work perfectly. Screen, Face ID, and all other internals are 100% original and untouched. No error messages. No warning screens.'
+};
+
+const carDesc={
+  'Unlocked':'Fully unlocked — works with every carrier worldwide.',
+  'Cricket Locked (Paid Off)':'Cricket locked and fully paid off — eligible for carrier unlock after 6 months of activation.',
+  'T-Mobile Locked (Paid Off)':'T-Mobile locked and fully paid off.',
+  'AT&T Locked (Paid Off)':'AT&T locked and fully paid off.',
+  'Verizon Locked (Paid Off)':'Verizon locked and fully paid off.'
+};
+
+// Short carrier label for the "Carrier:" line
+const carShort={
+  'Unlocked':'Fully unlocked — works with every carrier worldwide',
+  'Cricket Locked (Paid Off)':'Cricket locked — unlock eligible after 6 months',
+  'T-Mobile Locked (Paid Off)':'T-Mobile locked',
+  'AT&T Locked (Paid Off)':'AT&T locked',
+  'Verizon Locked (Paid Off)':'Verizon locked'
+};
+
+// Short battery line for the "Battery:" line
+function getBatteryShort(battery){
+  if(!battery) return '';
+  if(battery==='New (Replaced)') return 'Newly replaced — charges to 100% and holds excellent capacity';
+  const pct=parseInt(battery);
+  if(pct>=90) return `${battery} — excellent health, charges and holds like new`;
+  if(pct>=80) return `${battery} — solid daily life, charges and holds normally`;
+  return `${battery} — fully functional for daily use; priced accordingly (Apple suggests service below 80%)`;
+}
+
+function getBatteryText(battery){
+  if(battery==='New (Replaced)') return 'Battery has been professionally replaced — charges to 100% and holds excellent capacity.';
+  const pct=parseInt(battery);
+  if(pct>=80) return `Battery health is at ${battery}.`;
+  return `Battery health is at ${battery}. Please note: Apple recommends battery service below 80% — the device functions fully but battery performance may be reduced. This is reflected in the price.`;
+}
+
+// General rewrite engine — polishes ANY condition notes into professional wording,
+// no required keywords. Splits input into fragments, cleans/normalizes each into a
+// proper clause, sorts into positives vs flaws, and assembles a paragraph.
+function buildConditionFromNotes(condition, notes) {
+  const cond = condition.toLowerCase();
+
+  // 1) Split into fragments on commas, semicolons, slashes, "and", periods, line breaks
+  let frags = notes
+    .replace(/\s+/g, ' ')
+    .split(/[,;\/\n.]+|\band\b/i)
+    .map(f => f.trim())
+    .filter(f => f.length > 0);
+
+  if (frags.length === 0) {
+    return `This device is in ${cond} condition and has been fully tested, with all functions working perfectly.`;
+  }
+
+  // Word-level cleanup: expand shorthand, normalize casing
+  const shorthand = {
+    'scrn':'screen','scr':'screen','dsp':'display','bk':'back','btm':'bottom',
+    'lcd':'LCD','cam':'camera','batt':'battery','bh':'battery health','w/':'with',
+    'flawless':'flawless','mint':'mint','perf':'perfect','perfecto':'perfect',
+    'lil':'slight','tiny':'slight','sm':'small','scuffs':'scuffs','scuff':'scuff',
+    'crk':'crack','crack':'crack','chipped':'chipped','dinged':'dinged'
+  };
+  function cleanWords(s) {
+    return s.split(' ').map(w => {
+      const key = w.toLowerCase().replace(/[^\w\/]/g,'');
+      return shorthand[key] || w;
+    }).join(' ').trim();
+  }
+
+  // Decide if a fragment is a positive (good) or a flaw (cosmetic issue)
+  const flawWords = /(scratch|scuff|scrape|crack|chip|dent|ding|mark|wear|worn|blemish|hairline|shadow|burn|spot|crease|lift|separat|loose|fade|discolor|yellow|spiderweb|shatter|damage|nick|rough|peel)/i;
+  const goodWords = /(mint|flawless|perfect|clean|pristine|immaculate|great|good|excellent|new|spotless|crisp|clear|nice|fresh|like new|no scratch|no crack|no dent|scratch[- ]free|blemish[- ]free)/i;
+
+  const positives = [];
+  const flaws = [];
+
+  frags.forEach(raw => {
+    const f = cleanWords(raw);
+    const lower = f.toLowerCase();
+    const isFlaw = flawWords.test(lower) && !/no\s+\w+|free/.test(lower);
+    const isGood = goodWords.test(lower);
+
+    // Build a readable clause from the fragment
+    let clause = polishFragment(f);
+
+    if (isFlaw && !isGood) flaws.push(clause);
+    else positives.push(clause);
+  });
+
+  // 3) Assemble paragraph
+  let out = '';
+  if (positives.length && !flaws.length) {
+    out = `This device is in ${cond} condition, featuring ${joinList(positives)}. It has been well cared for and presents beautifully in person.`;
+  } else if (!positives.length && flaws.length) {
+    out = `This device is in ${cond} condition. In the interest of full transparency, please note ${joinList(flaws)}. Everything else presents cleanly, and all functions have been tested and work flawlessly.`;
+  } else {
+    out = `This device is in ${cond} condition, featuring ${joinList(positives)}. For full transparency, please note ${joinList(flaws)}. Aside from that, it looks great and all functions work flawlessly.`;
+  }
+  return out;
+}
+
+// Turn a raw fragment into a clean clause without copying it verbatim.
+// Recognizes a "part" + a "state" loosely, and rephrases naturally.
+function polishFragment(f) {
+  let s = f.toLowerCase().trim();
+
+  // Normalize common part names to clean labels
+  const partMap = [
+    [/\b(front\s*)?(screen|display|glass front|front glass)\b/, 'front display'],
+    [/\bback(\s*glass)?\b/, 'back glass'],
+    [/\b(side|sides|frame|edge|edges|rail|rails|aluminum|metal)\b/, 'frame'],
+    [/\b(corner|corners)\b/, 'corner'],
+    [/\b(camera|lens|lenses)\b/, 'camera lens'],
+    [/\b(button|buttons)\b/, 'buttons'],
+    [/\b(port|charging port)\b/, 'charging port'],
+  ];
+  let part = null;
+  for (const [re, label] of partMap) { if (re.test(s)) { part = label; break; } }
+
+  // Location words
+  const locM = s.match(/\b(top|bottom|upper|lower|left|right)\b/);
+  const loc = locM ? locM[1] : '';
+
+  // State / descriptor
+  let state = '';
+  if (/mint|flawless|perfect|pristine|immaculate|spotless|like new|excellent|no \w+|free/.test(s)) state = 'is in flawless shape';
+  else if (/great|good|nice|clean|clear|fresh|crisp/.test(s)) state = 'is in great shape';
+  else if (/crack|shatter|spiderweb/.test(s)) state = 'has a crack';
+  else if (/chip|dent|ding|nick/.test(s)) state = loc ? `has a small mark on the ${loc}` : 'has a small mark';
+  else if (/scratch|scrape|scuff|mark|blemish|hairline/.test(s)) state = 'shows light surface marks';
+  else if (/wear|worn|fade|rough|discolor|yellow/.test(s)) state = 'shows light wear from normal use';
+  else if (/lift|separat|loose|peel|crease/.test(s)) state = 'shows minor lifting';
+
+  // Assemble
+  if (part && state) {
+    return `the ${part} ${state}`;
+  }
+  if (part && !state) {
+    return `the ${part} is in good shape`;
+  }
+  if (!part && state) {
+    return `it ${state}`;
+  }
+  // Couldn't parse structure — clean up the raw fragment into a tidy clause
+  let tidy = s.replace(/^(has|with|the|a|an)\s+/,'').trim();
+  return tidy ? tidy : 'shows normal signs of use';
+}
+
+// joins ['a','b','c'] -> 'a, b, and c'
+function joinList(arr) {
+  if (arr.length === 1) return arr[0];
+  if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+  const last = arr[arr.length - 1];
+  return `${arr.slice(0, -1).join(', ')}, and ${last}`;
+}
+
+function generate(){
+  const model=document.getElementById('model').value,
+    storage=document.getElementById('storage').value,
+    color=document.getElementById('color').value,
+    condition=document.getElementById('condition').value,
+    carrier=document.getElementById('carrier').value,
+    battery=document.getElementById('battery').value,
+    repair=document.getElementById('repair').value,
+    notes=document.getElementById('condition-notes').value.trim();
+
+  if(!model||!storage||!condition||!carrier){alert('Please complete all required fields.');return;}
+
+  const conditionSentence = notes ? buildConditionFromNotes(condition, notes) : (cDesc[condition] + '.');
+
+  const carrierLabel=carrier.includes('Unlocked')?'Unlocked':carrier;
+  const isRepaired = repair && repair !== 'None';
+  const titleTag = isRepaired ? 'Professionally Repaired' : 'Fully Original';
+  const base = `Apple ${model} ${storage} ${carrierLabel}`;
+
+  // Build title that fits eBay's 80-char limit, trimming extras as needed
+  let title = `${base} | ${titleTag} | Fast Shipping`;
+  if (title.length > 80) title = `${base} | ${titleTag}`;                 // drop Fast Shipping
+  if (title.length > 80) title = `${base} | ${isRepaired ? 'Repaired' : 'Original'}`; // shortest tag
+  if (title.length > 80) title = base.slice(0, 80);                        // hard cap fallback
+  document.getElementById('title-text').textContent = title;
+
+  const headline = isRepaired
+    ? '💎 Professional-Grade Refurbished — Not Your Average Used Phone'
+    : '💎 Fully Tested & Verified — Not Your Average Used Phone';
+
+  const condLine = notes ? conditionSentence : (cDesc[condition] + '.');
+
+  const desc=`${headline}
+
+This isn't a phone someone just wiped and listed. Every Avuex device is inspected, tested, and verified before it ever ships. You're getting a phone that works like it should — guaranteed.
+
+${isRepaired ? 'What was serviced: ' : 'Condition: '}${servicedLine[repair]}
+
+${condLine}
+
+Battery: ${getBatteryShort(battery) || 'Tested and holds a healthy charge'}
+Carrier: ${carShort[carrier] || 'Fully unlocked'}
+IMEI: Clean — no flags, no issues, activates instantly
+
+——————————————————
+
+✅ AVUEX 16-POINT VERIFICATION
+Face ID ✓ | Front & Rear Cameras ✓ | Speakers & Earpiece ✓
+Microphone ✓ | Charging Port ✓ | Cellular & Calling ✓
+WiFi & Bluetooth ✓ | Touch & Display ✓ | Buttons & Vibration ✓
+iCloud Lock Removed ✓ | Clean Title ✓ | Fully Paid Off ✓
+
+——————————————————
+
+Why buyers choose Avuex:
+We disclose everything. No hidden damage, no misleading photos, no surprises when it arrives. What you see is exactly what you get — and if anything isn't right, our 30-day return policy has you covered. No hoops, no hassle.
+
+📦 Bubble wrapped & professionally packed
+🚀 Ships within 24 hours of payment
+🔄 30-day returns — we stand behind every device
+💬 Fast responses — message us anytime
+
+Device only — no accessories included.`;
+
+  document.getElementById('listing-text').textContent=desc.trim();
+  document.getElementById('output').classList.add('visible');
+  setTimeout(()=>document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+</script>
+</body>
+</html>
